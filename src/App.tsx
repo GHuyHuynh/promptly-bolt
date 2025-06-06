@@ -4,6 +4,8 @@ import { ToastProvider } from "./components/ui/toaster";
 import Navbar from "./components/navbar";
 import { Footer } from "./components/footer";
 import HomePage from "./pages/home";
+import SignInPage from "./pages/sign-in";
+import SignUpPage from "./pages/sign-up";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
             <Navbar />
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/sign-in/*" element={<SignInPage />} />
+              <Route path="/sign-up/*" element={<SignUpPage />} />
             </Routes>
             <Footer />
           </div>
