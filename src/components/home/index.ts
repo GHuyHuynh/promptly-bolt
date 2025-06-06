@@ -1,0 +1,9 @@
+export { HeroSection } from "./hero-section";
+export { SkillTreePreview } from "./skill-tree-preview";
+export { GamificationShowcase } from "./gamification-showcase";
+export { SocialProofSection } from "./social-proof-section";
+export { ValuePropositionShowcase } from "./value-proposition-showcase";
+export { InteractiveDemo } from "./interactive-demo";
+export { SuccessStories } from "./success-stories";
+export { PricingValue } from "./pricing-value";
+export { FAQSection } from "./faq-section";
