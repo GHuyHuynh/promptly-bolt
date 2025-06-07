@@ -8,6 +8,7 @@ import SignInPage from "./pages/sign-in";
 import SignUpPage from "./pages/sign-up";
 import DashboardPage from "./pages/dashboard";
 import LearnPage from "./pages/learn";
+import PromptLearningPage from "./pages/prompt-learning";
 import LeaderboardPage from "./pages/leaderboard";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="/sign-up/*" element={<SignUpPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/learn" element={<LearnPage />} />
+              <Route path="/prompt-learning" element={<PromptLearningPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
             </Routes>
             <Footer />

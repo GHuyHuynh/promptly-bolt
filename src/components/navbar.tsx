@@ -16,6 +16,7 @@ import {
   Search,
   Zap,
   Crown,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,12 @@ const navigationItems = [
     href: "/learn",
     icon: BookOpen,
     description: "Interactive lessons and courses",
+  },
+  {
+    name: "Prompt Lab",
+    href: "/prompt-learning",
+    icon: Lightbulb,
+    description: "Practice prompt engineering",
   },
   {
     name: "Dashboard",
