@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~convex/api";
 import { Dashboard } from "@/components/learning/Dashboard";
 import { Loading } from "@/components/ui/loading";
 
