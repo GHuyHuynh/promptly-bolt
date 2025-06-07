@@ -29,6 +29,13 @@ export const getUser = query({
   },
 });
 
+export const getUserById = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.userId);
+  },
+});
+
 export const getLeaderboard = query({
   args: {},
   handler: async (ctx) => {
@@ -67,20 +74,22 @@ export const updateUserProgress = mutation({
   },
 });
 
-// Create a mock user for testing - changed to internalMutation
-export const createMockUser = internalMutation({
+// Create sample users for development
+export const createSampleUsers = mutation({
   args: {},
   handler: async (ctx) => {
+    // Check if sample users already exist
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", "alex@example.com"))
       .first();
 
     if (existingUser) {
-      return existingUser._id;
+      return { message: "Sample users already exist", sampleUserId: existingUser._id };
     }
 
-    return await ctx.db.insert("users", {
+    // Create main sample user
+    const sampleUserId = await ctx.db.insert("users", {
       email: "alex@example.com",
       name: "Alex Chen",
       totalScore: 2450,
@@ -90,5 +99,63 @@ export const createMockUser = internalMutation({
       lastActiveDate: new Date().toISOString().split('T')[0],
       createdAt: Date.now(),
     });
+
+    // Create additional sample users for leaderboard
+    await ctx.db.insert("users", {
+      email: "sarah@example.com",
+      name: "Sarah Kim",
+      totalScore: 2380,
+      level: 11,
+      currentStreak: 5,
+      longestStreak: 12,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.insert("users", {
+      email: "mike@example.com",
+      name: "Mike Johnson",
+      totalScore: 2250,
+      level: 11,
+      currentStreak: 3,
+      longestStreak: 8,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.insert("users", {
+      email: "emma@example.com",
+      name: "Emma Davis",
+      totalScore: 2100,
+      level: 10,
+      currentStreak: 2,
+      longestStreak: 10,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.insert("users", {
+      email: "david@example.com",
+      name: "David Wilson",
+      totalScore: 1950,
+      level: 10,
+      currentStreak: 1,
+      longestStreak: 6,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      createdAt: Date.now(),
+    });
+
+    return { message: "Sample users created successfully", sampleUserId };
+  },
+});
+
+// Get the main sample user for development
+export const getSampleUser = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", "alex@example.com"))
+      .first();
   },
 });

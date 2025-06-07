@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "convex/react";
+import { api } from "~convex/api";
 import {
   Menu,
   X,
@@ -27,17 +29,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavbar } from "@/hooks/use-navbar";
-
-// Mock user data - replace with actual auth context
-const mockUser = {
-  name: "Alex Chen",
-  email: "alex@example.com",
-  avatar: "/avatars/alex.svg",
-  level: 12,
-  xp: 2450,
-  streak: 7,
-  isPremium: true,
-};
 
 const navigationItems = [
   {
@@ -66,6 +57,9 @@ export default function Navbar() {
   const { isScrolled, isVisible, pathname } = useNavbar();
   const location = useLocation();
 
+  // Get sample user data from Convex
+  const sampleUser = useQuery(api.users.getSampleUser);
+
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -78,6 +72,15 @@ export default function Navbar() {
 
   const isActivePath = (path: string) => {
     return pathname === path;
+  };
+
+  // Use sample user data or fallback to mock data
+  const user = sampleUser || {
+    name: "Alex Chen",
+    email: "alex@example.com",
+    level: 12,
+    totalScore: 2450,
+    currentStreak: 7,
   };
 
   return (
@@ -166,12 +169,12 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center space-x-3 px-3 py-1 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-1">
                 <Zap className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium">{mockUser.xp}</span>
+                <span className="text-sm font-medium">{user.totalScore}</span>
               </div>
               <div className="w-px h-4 bg-gray-300" />
               <div className="flex items-center space-x-1">
                 <Trophy className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-medium">{mockUser.streak}</span>
+                <span className="text-sm font-medium">{user.currentStreak}</span>
               </div>
             </div>
 
@@ -183,16 +186,14 @@ export default function Navbar() {
                   className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-indigo-500 hover:ring-offset-2 transition-all duration-200"
                 >
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
+                    <AvatarImage src="/avatars/alex.svg" alt={user.name} />
                     <AvatarFallback className="bg-indigo-100 text-indigo-600 font-semibold">
-                      {mockUser.name.split(' ').map(n => n[0]).join('')}
+                      {user.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  {mockUser.isPremium && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <Crown className="w-2.5 h-2.5 text-white" />
-                    </div>
-                  )}
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <Crown className="w-2.5 h-2.5 text-white" />
+                  </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64" align="end" forceMount>
@@ -200,27 +201,25 @@ export default function Navbar() {
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2">
                       <p className="text-sm font-medium leading-none">
-                        {mockUser.name}
+                        {user.name}
                       </p>
-                      {mockUser.isPremium && (
-                        <Badge className="bg-yellow-100 text-yellow-800 text-xs">
-                          Premium
-                        </Badge>
-                      )}
+                      <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                        Premium
+                      </Badge>
                     </div>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {mockUser.email}
+                      {user.email || "alex@example.com"}
                     </p>
                     <div className="flex items-center space-x-4 pt-2">
                       <div className="flex items-center space-x-1">
                         <span className="text-xs text-muted-foreground">Level</span>
                         <Badge variant="outline" className="text-xs">
-                          {mockUser.level}
+                          {user.level}
                         </Badge>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Zap className="w-3 h-3 text-yellow-500" />
-                        <span className="text-xs font-medium">{mockUser.xp} XP</span>
+                        <span className="text-xs font-medium">{user.totalScore} XP</span>
                       </div>
                     </div>
                   </div>
@@ -305,14 +304,14 @@ export default function Navbar() {
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-1">
                       <Zap className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm font-medium">{mockUser.xp} XP</span>
+                      <span className="text-sm font-medium">{user.totalScore} XP</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Trophy className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm font-medium">{mockUser.streak} streak</span>
+                      <span className="text-sm font-medium">{user.currentStreak} streak</span>
                     </div>
                   </div>
-                  <Badge variant="outline">Level {mockUser.level}</Badge>
+                  <Badge variant="outline">Level {user.level}</Badge>
                 </div>
 
                 {/* Navigation Items */}
