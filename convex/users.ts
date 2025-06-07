@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 
 export const createUser = mutation({
   args: {
@@ -67,8 +67,8 @@ export const updateUserProgress = mutation({
   },
 });
 
-// Create a mock user for testing
-export const createMockUser = mutation({
+// Create a mock user for testing - changed to internalMutation
+export const createMockUser = internalMutation({
   args: {},
   handler: async (ctx) => {
     const existingUser = await ctx.db
