@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useUser, useClerk, SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { cn } from "../lib/utils";
 import { useNavbar } from "../hooks/use-navbar";
 import { NavbarSkeleton } from "./navbar-skeleton";
@@ -28,7 +30,7 @@ const publicNavigation = [
 
 const protectedNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
-  { name: "Lessons", href: "/lessons", icon: BookOpen },
+  { name: "Learn", href: "/learn", icon: BookOpen },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
 ];
 
@@ -39,8 +41,8 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const user = useQuery(api.users.getCurrentUser);
+  const { signOut } = useAuthActions();
 
   return (
     <AnimatePresence>
@@ -68,7 +70,7 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
             </div>
 
             <div className="px-6 py-4">
-              <SignedIn>
+              {user ? (
                 <div className="mb-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -85,9 +87,7 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
                     </Link>
                   ))}
                 </div>
-              </SignedIn>
-
-              <SignedOut>
+              ) : (
                 <div className="mb-6">
                   {publicNavigation.map((item) => (
                     <Link
@@ -104,23 +104,19 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
                     </Link>
                   ))}
                 </div>
-              </SignedOut>
+              )}
 
-              <SignedIn>
+              {user ? (
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex items-center space-x-3 px-3">
                     <Avatar>
-                      <AvatarImage src={user?.imageUrl} />
                       <AvatarFallback>
-                        {user?.firstName?.[0]}
-                        {user?.lastName?.[0]}
+                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-900">
-                        {user?.firstName} {user?.lastName}
-                      </p>
-                      <p className="text-sm text-gray-500">{user?.primaryEmailAddress?.emailAddress}</p>
+                      <p className="font-medium text-gray-900">{user.name}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                   </div>
 
@@ -145,7 +141,7 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
                     </button>
                   </div>
                 </div>
-              </SignedIn>
+              ) : null}
             </div>
           </motion.div>
         </motion.div>
@@ -158,7 +154,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const { isScrolled, isVisible, pathname } = useNavbar();
-  const { user } = useUser();
+  const user = useQuery(api.users.getCurrentUser);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -205,12 +201,17 @@ export default function Navbar() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold">Logo</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+                  <span className="text-sm font-bold text-white">P</span>
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Promptly
+                </span>
               </Link>
             </div>
 
             <div className="hidden lg:block">
-              <SignedIn>
+              {user ? (
                 <div className="flex items-center space-x-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -226,9 +227,7 @@ export default function Navbar() {
                     </Link>
                   ))}
                 </div>
-              </SignedIn>
-
-              <SignedOut>
+              ) : (
                 <div className="flex items-center space-x-6">
                   {publicNavigation.map((item) => (
                     <Link
@@ -244,11 +243,11 @@ export default function Navbar() {
                     </Link>
                   ))}
                 </div>
-              </SignedOut>
+              )}
             </div>
 
             <div className="flex items-center space-x-4">
-              <SignedIn>
+              {user ? (
                 <div className="hidden lg:block">
                   <div className="flex items-center space-x-4">
                     <Link
@@ -262,17 +261,13 @@ export default function Navbar() {
                       <span>Settings</span>
                     </Link>
                     <Avatar>
-                      <AvatarImage src={user?.imageUrl} />
                       <AvatarFallback>
-                        {user?.firstName?.[0]}
-                        {user?.lastName?.[0]}
+                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                 </div>
-              </SignedIn>
-
-              <SignedOut>
+              ) : (
                 <div className="hidden lg:block">
                   <div className="flex items-center space-x-4">
                     <Link to="/sign-in">
@@ -283,7 +278,7 @@ export default function Navbar() {
                     </Link>
                   </div>
                 </div>
-              </SignedOut>
+              )}
 
               <div className="lg:hidden">
                 <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
