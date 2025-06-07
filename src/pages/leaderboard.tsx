@@ -124,7 +124,7 @@ export default function LeaderboardPage() {
                       <div className="font-semibold flex items-center gap-2">
                         {user.name}
                         {userProgress?.user.name === user.name && (
-                          <Badge variant="outline" className="text-xs">You</Badge>
+                          <Badge variant="outline\" className="text-xs">You</Badge>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">

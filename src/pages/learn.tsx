@@ -26,7 +26,7 @@ export default function LearnPage() {
   const submitQuiz = useMutation(api.quizzes.submitQuiz);
 
   if (modules === undefined || userProgress === undefined) {
-    return <Loading variant="brain" size="lg" text="Loading learning content..." fullScreen />;
+    return <Loading variant="brain\" size="lg\" text="Loading learning content...\" fullScreen />;
   }
 
   if (!userProgress) {
