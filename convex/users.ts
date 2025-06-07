@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
+import { Doc } from "./_generated/dataModel";
 
 export const createUser = mutation({
   args: {
     email: v.string(),
     name: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<string> => {
     return await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
@@ -21,7 +22,7 @@ export const createUser = mutation({
 
 export const getUser = query({
   args: { email: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
     return await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
@@ -31,14 +32,14 @@ export const getUser = query({
 
 export const getUserById = query({
   args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
     return await ctx.db.get(args.userId);
   },
 });
 
 export const getLeaderboard = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<Doc<"users">[]> => {
     return await ctx.db
       .query("users")
       .order("desc")
@@ -52,7 +53,7 @@ export const updateUserProgress = mutation({
     xpGained: v.number(),
     streakUpdate: v.optional(v.boolean()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<void> => {
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
 
@@ -77,7 +78,7 @@ export const updateUserProgress = mutation({
 // Create sample users for development
 export const createSampleUsers = mutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<{ message: string; sampleUserId: string }> => {
     // Check if sample users already exist
     const existingUser = await ctx.db
       .query("users")
@@ -152,7 +153,7 @@ export const createSampleUsers = mutation({
 // Get the main sample user for development
 export const getSampleUser = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<Doc<"users"> | null> => {
     return await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", "alex@example.com"))
