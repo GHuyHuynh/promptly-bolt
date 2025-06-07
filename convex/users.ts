@@ -1,3 +1,5 @@
+'use node';
+
 import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
 import { Doc } from "./_generated/dataModel";
