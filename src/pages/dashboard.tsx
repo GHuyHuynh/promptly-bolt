@@ -1,9 +1,10 @@
-import { useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, AuthLoading, useQuery } from "convex/react";
+import { SignInButton } from "@clerk/clerk-react";
 import { api } from "~convex/api";
 import { Dashboard } from "@/components/learning/Dashboard";
 import { Loading } from "@/components/ui/loading";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const userProgress = useQuery(api.progress.getUserProgress);
   const modules = useQuery(api.modules.getAllModules);
 
@@ -59,5 +60,31 @@ export default function DashboardPage() {
       }}
       recentActivity={recentActivity}
     />
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <>
+      <AuthLoading>
+        <Loading variant="brain" size="lg" text="Checking authentication..." fullScreen />
+      </AuthLoading>
+      <Unauthenticated>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in to access your dashboard</h2>
+            <p className="text-gray-600 mb-6">Please sign in to view your learning progress.</p>
+            <SignInButton>
+              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      </Unauthenticated>
+      <Authenticated>
+        <DashboardContent />
+      </Authenticated>
+    </>
   );
 }

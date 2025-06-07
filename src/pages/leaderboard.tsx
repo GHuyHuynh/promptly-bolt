@@ -1,4 +1,5 @@
-import { useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, AuthLoading, useQuery } from "convex/react";
+import { SignInButton } from "@clerk/clerk-react";
 import { api } from "~convex/api";
 import { motion } from "framer-motion";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
@@ -6,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loading } from "@/components/ui/loading";
 
-export default function LeaderboardPage() {
+function LeaderboardContent() {
   const leaderboard = useQuery(api.users.getLeaderboard);
   const userProgress = useQuery(api.progress.getUserProgress);
 
@@ -124,7 +125,7 @@ export default function LeaderboardPage() {
                       <div className="font-semibold flex items-center gap-2">
                         {user.name}
                         {userProgress?.user.name === user.name && (
-                          <Badge variant="outline\" className="text-xs">You</Badge>
+                          <Badge variant="outline" className="text-xs">You</Badge>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -182,5 +183,31 @@ export default function LeaderboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LeaderboardPage() {
+  return (
+    <>
+      <AuthLoading>
+        <Loading variant="brain" size="lg" text="Checking authentication..." fullScreen />
+      </AuthLoading>
+      <Unauthenticated>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in to view leaderboard</h2>
+            <p className="text-gray-600 mb-6">Please sign in to see your ranking and compete with other learners.</p>
+            <SignInButton>
+              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      </Unauthenticated>
+      <Authenticated>
+        <LeaderboardContent />
+      </Authenticated>
+    </>
   );
 }

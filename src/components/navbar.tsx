@@ -15,7 +15,7 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
-import { useQuery } from "convex/react";
+import { useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { cn } from "../lib/utils";
 import { useNavbar } from "../hooks/use-navbar";
@@ -41,6 +41,7 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
+  const { isAuthenticated } = useConvexAuth();
   const { user: clerkUser } = useUser();
   const { signOut } = useClerk();
 
@@ -70,7 +71,7 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
             </div>
 
             <div className="px-6 py-4">
-              {clerkUser ? (
+              {isAuthenticated ? (
                 <div className="mb-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -106,7 +107,7 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
                 </div>
               )}
 
-              {clerkUser ? (
+              {isAuthenticated && clerkUser ? (
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex items-center space-x-3 px-3">
                     <Avatar>
@@ -155,6 +156,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const { isScrolled, isVisible, pathname } = useNavbar();
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const { user: clerkUser } = useUser();
 
   useEffect(() => {
@@ -212,7 +214,7 @@ export default function Navbar() {
             </div>
 
             <div className="hidden lg:block">
-              {clerkUser ? (
+              {isAuthenticated ? (
                 <div className="flex items-center space-x-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -248,7 +250,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {clerkUser ? (
+              {isAuthenticated ? (
                 <div className="hidden lg:block">
                   <div className="flex items-center space-x-4">
                     <Link

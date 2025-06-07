@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { Authenticated, Unauthenticated, AuthLoading, useQuery, useMutation } from "convex/react";
+import { SignInButton } from "@clerk/clerk-react";
 import { api } from "~convex/api";
 import { LessonCard } from "@/components/learning/LessonCard";
 import { QuizInterface } from "@/components/learning/QuizInterface";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Trophy, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function LearnPage() {
+function LearnContent() {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -26,7 +27,7 @@ export default function LearnPage() {
   const submitQuiz = useMutation(api.quizzes.submitQuiz);
 
   if (modules === undefined || userProgress === undefined) {
-    return <Loading variant="brain\" size="lg\" text="Loading learning content...\" fullScreen />;
+    return <Loading variant="brain" size="lg" text="Loading learning content..." fullScreen />;
   }
 
   if (!userProgress) {
@@ -82,7 +83,7 @@ export default function LearnPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setSelectedLesson(null)}
             className="mb-6"
           >
@@ -149,7 +150,7 @@ export default function LearnPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setShowQuiz(false)}
             className="mb-6"
           >
@@ -176,7 +177,7 @@ export default function LearnPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="max-w-6xl mx-auto px-4">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setSelectedModule(null)}
             className="mb-6"
           >
@@ -291,5 +292,31 @@ export default function LearnPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LearnPage() {
+  return (
+    <>
+      <AuthLoading>
+        <Loading variant="brain" size="lg" text="Checking authentication..." fullScreen />
+      </AuthLoading>
+      <Unauthenticated>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in to start learning</h2>
+            <p className="text-gray-600 mb-6">Please sign in to access the learning modules.</p>
+            <SignInButton>
+              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      </Unauthenticated>
+      <Authenticated>
+        <LearnContent />
+      </Authenticated>
+    </>
   );
 }
