@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "~convex/api";
 import { motion } from "framer-motion";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { Card } from "@/components/ui/card";
