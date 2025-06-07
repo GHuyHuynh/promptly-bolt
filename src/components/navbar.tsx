@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useUser, useClerk, UserButton } from "@clerk/clerk-react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { cn } from "../lib/utils";
@@ -41,8 +41,8 @@ interface MobileMenuProps {
 }
 
 function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
-  const user = useQuery(api.users.getCurrentUser);
-  const { signOut } = useAuthActions();
+  const { user: clerkUser } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <AnimatePresence>
@@ -64,13 +64,13 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
           >
             <div className="flex h-16 items-center justify-between px-6">
               <span className="text-lg font-semibold">Menu</span>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
             <div className="px-6 py-4">
-              {user ? (
+              {clerkUser ? (
                 <div className="mb-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -106,17 +106,18 @@ function MobileMenu({ isOpen, onClose, pathname }: MobileMenuProps) {
                 </div>
               )}
 
-              {user ? (
+              {clerkUser ? (
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex items-center space-x-3 px-3">
                     <Avatar>
+                      <AvatarImage src={clerkUser.imageUrl} />
                       <AvatarFallback>
-                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                        {clerkUser.firstName?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-900">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
+                      <p className="font-medium text-gray-900">{clerkUser.firstName} {clerkUser.lastName}</p>
+                      <p className="text-sm text-gray-500">{clerkUser.primaryEmailAddress?.emailAddress}</p>
                     </div>
                   </div>
 
@@ -154,7 +155,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const { isScrolled, isVisible, pathname } = useNavbar();
-  const user = useQuery(api.users.getCurrentUser);
+  const { user: clerkUser } = useUser();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -211,7 +212,7 @@ export default function Navbar() {
             </div>
 
             <div className="hidden lg:block">
-              {user ? (
+              {clerkUser ? (
                 <div className="flex items-center space-x-6">
                   {protectedNavigation.map((item) => (
                     <Link
@@ -247,7 +248,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {user ? (
+              {clerkUser ? (
                 <div className="hidden lg:block">
                   <div className="flex items-center space-x-4">
                     <Link
@@ -260,11 +261,13 @@ export default function Navbar() {
                       <Settings className="h-5 w-5" />
                       <span>Settings</span>
                     </Link>
-                    <Avatar>
-                      <AvatarFallback>
-                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserButton 
+                      appearance={{
+                        elements: {
+                          avatarBox: "h-8 w-8"
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               ) : (
@@ -281,7 +284,7 @@ export default function Navbar() {
               )}
 
               <div className="lg:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
+                <Button variant="ghost" size="sm" onClick={() => setIsMobileMenuOpen(true)} className="h-8 w-8 p-0">
                   <Menu className="h-5 w-5" />
                 </Button>
               </div>

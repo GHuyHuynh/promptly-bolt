@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { auth } from "./auth";
 
 export const completeLesson = mutation({
   args: {
@@ -8,7 +7,7 @@ export const completeLesson = mutation({
     score: v.number(),
   },
   handler: async (ctx, args) => {
-    const identity = await auth.getUserIdentity(ctx);
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
     }
@@ -99,7 +98,7 @@ export const completeLesson = mutation({
 export const getUserProgress = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await auth.getUserIdentity(ctx);
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       return null;
     }
@@ -137,7 +136,7 @@ export const isLessonUnlocked = query({
     lessonId: v.id("lessons"),
   },
   handler: async (ctx, args) => {
-    const identity = await auth.getUserIdentity(ctx);
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       return false;
     }

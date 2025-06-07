@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { auth } from "./auth";
 
 export const createQuiz = mutation({
   args: {
@@ -42,7 +41,7 @@ export const submitQuiz = mutation({
     })),
   },
   handler: async (ctx, args) => {
-    const identity = await auth.getUserIdentity(ctx);
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
     }
@@ -155,7 +154,7 @@ export const submitQuiz = mutation({
 export const getUserQuizAttempts = query({
   args: { quizId: v.id("quizzes") },
   handler: async (ctx, args) => {
-    const identity = await auth.getUserIdentity(ctx);
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       return [];
     }
