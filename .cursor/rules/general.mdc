@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Tech Stack
+- Frontend: Vite + React + Typescript
+- Backend: Firebase
+- Auth: Google Auth with Firebase
+- Styling: Shadcn/ui + TailwindCSS
+- Deployment: Netlify
