@@ -23,7 +23,7 @@ function App() {
         <ToastProvider>
           <div className="relative flex min-h-screen flex-col antialiased">
             <Navbar />
-            <main className="pt-16 flex-1">
+            <main className="pt-20 flex-1">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/sign-in" element={<SignInPage />} />
