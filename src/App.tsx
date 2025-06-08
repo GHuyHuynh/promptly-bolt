@@ -23,30 +23,32 @@ function App() {
         <ToastProvider>
           <div className="relative flex min-h-screen flex-col antialiased">
             <Navbar />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/sign-in" element={<SignInPage />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/learn" element={
-                <ProtectedRoute>
-                  <LearnPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/prompt-learning" element={
-                <ProtectedRoute>
-                  <PromptLearningPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/leaderboard" element={
-                <ProtectedRoute>
-                  <LeaderboardPage />
-                </ProtectedRoute>
-              } />
-            </Routes>
+            <main className="pt-16 flex-1">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/learn" element={
+                  <ProtectedRoute>
+                    <LearnPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/prompt-learning" element={
+                  <ProtectedRoute>
+                    <PromptLearningPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/leaderboard" element={
+                  <ProtectedRoute>
+                    <LeaderboardPage />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </main>
             <Footer />
           </div>
         </ToastProvider>
