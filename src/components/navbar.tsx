@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavbar } from "@/hooks/use-navbar";
-import { mockApi } from "@/data/mockData";
+import { firebaseApi, User as FirebaseUser } from "@/services/firebaseApi";
 
 const navigationItems = [
   {
@@ -60,13 +60,13 @@ const navigationItems = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const { isScrolled, isVisible, pathname } = useNavbar();
   const location = useLocation();
 
   // Load sample user data
   useEffect(() => {
-    mockApi.users.getSampleUser().then(setUser);
+    firebaseApi.users.getSampleUser().then(setUser);
   }, []);
 
   // Close mobile menu when route changes

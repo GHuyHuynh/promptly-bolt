@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { BookOpen, Clock, Trophy, Star, CheckCircle, ArrowRight, Lightbulb } from 'lucide-react';
-import { mockApi } from '@/data/mockData';
+import { firebaseApi, User as FirebaseUser } from '@/services/firebaseApi';
 
 const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: string }> = ({ onComplete, userId }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -179,11 +179,15 @@ const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: s
 const LearnPage: React.FC = () => {
   const [showLesson, setShowLesson] = useState(false);
   const [lessonCompleted, setLessonCompleted] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Load sample user data
-  React.useEffect(() => {
-    mockApi.users.getSampleUser().then(setUser);
+  useEffect(() => {
+    firebaseApi.users.getSampleUser().then((userData) => {
+      setUser(userData);
+      setLoading(false);
+    });
   }, []);
 
   const handleStartLesson = () => {
@@ -197,18 +201,18 @@ const LearnPage: React.FC = () => {
     }
 
     try {
-      // Mock lesson completion
-      await mockApi.progress.createProgress({
-        userId: user._id,
+      // Create lesson progress
+      await firebaseApi.progress.createProgress({
+        userId: user.id!,
         lessonId: "lesson1",
         completed: true,
         score: score,
       });
 
-      // Mock user progress update
+      // Update user XP
       const xpGained = Math.round(score * 2);
-      await mockApi.users.updateUserProgress({
-        userId: user._id,
+      await firebaseApi.users.updateUserProgress({
+        userId: user.id!,
         xpGained: xpGained,
         streakUpdate: true,
       });
@@ -221,7 +225,7 @@ const LearnPage: React.FC = () => {
   };
 
   if (showLesson && user) {
-    return <PromptingLesson onComplete={handleLessonComplete} userId={user._id} />;
+    return <PromptingLesson onComplete={handleLessonComplete} userId={user.id!} />;
   }
 
   const mockModules = [
@@ -271,7 +275,7 @@ const LearnPage: React.FC = () => {
   };
 
   // Show loading state while user is being loaded
-  if (!user) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -279,6 +283,16 @@ const LearnPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading your learning environment...</p>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <p className="text-red-600">Error loading user data. Please try again.</p>
         </div>
       </div>
     );

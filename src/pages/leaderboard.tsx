@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Trophy, Medal, Award } from 'lucide-react';
-import { mockApi, MockUser } from '../data/mockData';
+import { firebaseApi, User as FirebaseUser } from '../services/firebaseApi';
 
 export default function LeaderboardPage() {
-  const [users, setUsers] = useState<MockUser[]>([]);
+  const [users, setUsers] = useState<FirebaseUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    mockApi.users.getLeaderboard().then((data) => {
+    firebaseApi.users.getLeaderboard().then((data) => {
       setUsers(data);
       setLoading(false);
     });
@@ -77,7 +77,7 @@ export default function LeaderboardPage() {
               const rank = index + 1;
               return (
                 <div
-                  key={user._id}
+                  key={user.id}
                   className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all hover:shadow-md ${getRankColor(rank)}`}
                 >
                   <div className="flex items-center gap-4">

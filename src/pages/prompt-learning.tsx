@@ -5,10 +5,10 @@ import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Progress } from '../components/ui/progress';
 import { Star, Clock, Target, BookOpen, Lightbulb, CheckCircle } from 'lucide-react';
-import { mockApi } from '../data/mockData';
+import { firebaseApi, User as FirebaseUser } from '../services/firebaseApi';
 
 const PromptLearning = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<any>(null);
   const [userInput, setUserInput] = useState('');
   const [userOutput, setUserOutput] = useState('');
@@ -18,7 +18,7 @@ const PromptLearning = () => {
 
   // Load sample user data
   useEffect(() => {
-    mockApi.users.getSampleUser().then(setUser);
+    firebaseApi.users.getSampleUser().then(setUser);
   }, []);
 
   // Mock prompts for demonstration
@@ -91,7 +91,7 @@ const PromptLearning = () => {
 
     try {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-      const result = await mockApi.learning.completePromptAttempt({
+      const result = await firebaseApi.learning.completePromptAttempt({
         attemptId: "mock-attempt",
         userOutput: userOutput.trim(),
         timeSpent,
