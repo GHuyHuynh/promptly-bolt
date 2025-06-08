@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
 import { ToastProvider } from "./components/ui/toaster";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import Navbar from "./components/navbar";
 import { Footer } from "./components/footer";
 import HomePage from "./pages/home";
 import SignInPage from "./pages/sign-in";
-import SignUpPage from "./pages/sign-up";
 import DashboardPage from "./pages/dashboard";
 import LearnPage from "./pages/learn";
 import PromptLearningPage from "./pages/prompt-learning";
@@ -25,12 +25,27 @@ function App() {
             <Navbar />
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/sign-in/*" element={<SignInPage />} />
-              <Route path="/sign-up/*" element={<SignUpPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/learn" element={<LearnPage />} />
-              <Route path="/prompt-learning" element={<PromptLearningPage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/sign-in" element={<SignInPage />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/learn" element={
+                <ProtectedRoute>
+                  <LearnPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/prompt-learning" element={
+                <ProtectedRoute>
+                  <PromptLearningPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/leaderboard" element={
+                <ProtectedRoute>
+                  <LeaderboardPage />
+                </ProtectedRoute>
+              } />
             </Routes>
             <Footer />
           </div>

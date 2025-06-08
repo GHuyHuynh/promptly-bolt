@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Trophy, Medal, Award } from 'lucide-react';
 import { firebaseApi, User as FirebaseUser } from '../services/firebaseApi';
 
@@ -86,6 +86,7 @@ export default function LeaderboardPage() {
                     </div>
                     
                     <Avatar className="h-10 w-10">
+                      <AvatarImage src={user.photoURL} alt={user.name} />
                       <AvatarFallback className="bg-blue-100 text-blue-600">
                         {user.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>

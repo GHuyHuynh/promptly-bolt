@@ -5,6 +5,7 @@ import {
   getDoc, 
   addDoc, 
   updateDoc, 
+  setDoc,
   query, 
   where, 
   orderBy, 
@@ -19,6 +20,7 @@ export interface User {
   id?: string;
   name: string;
   email: string;
+  photoURL?: string;
   totalScore: number;
   level: number;
   currentStreak: number;
@@ -84,6 +86,65 @@ export interface PromptAttempt {
 export const firebaseApi = {
   // Users
   users: {
+    async createOrUpdateUser(userData: {
+      id: string;
+      name: string;
+      email: string;
+      photoURL?: string;
+    }): Promise<User> {
+      try {
+        const userRef = doc(db, "users", userData.id);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          // Update existing user
+          const existingData = userDoc.data() as User;
+          const updatedData = {
+            name: userData.name,
+            email: userData.email,
+            photoURL: userData.photoURL,
+          };
+          
+          await updateDoc(userRef, updatedData);
+          return { ...existingData, ...updatedData };
+        } else {
+          // Create new user
+          const newUser: Omit<User, 'id'> = {
+            name: userData.name,
+            email: userData.email,
+            photoURL: userData.photoURL,
+            totalScore: 0,
+            level: 1,
+            currentStreak: 0,
+            longestStreak: 0,
+            lastActiveDate: new Date().toISOString().split('T')[0],
+            createdAt: serverTimestamp(),
+          };
+          
+          await setDoc(userRef, newUser);
+          return { id: userData.id, ...newUser, createdAt: Date.now() };
+        }
+      } catch (error) {
+        console.error("Error creating/updating user:", error);
+        throw error;
+      }
+    },
+
+    async getUserById(userId: string): Promise<User | null> {
+      try {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          return { id: userDoc.id, ...userDoc.data() } as User;
+        }
+        return null;
+      } catch (error) {
+        console.error("Error getting user by ID:", error);
+        return null;
+      }
+    },
+
     async getSampleUser(): Promise<User | null> {
       try {
         const usersRef = collection(db, "users");

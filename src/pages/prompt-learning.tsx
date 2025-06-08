@@ -5,21 +5,17 @@ import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Progress } from '../components/ui/progress';
 import { Star, Clock, Target, BookOpen, Lightbulb, CheckCircle } from 'lucide-react';
-import { firebaseApi, User as FirebaseUser } from '../services/firebaseApi';
+import { firebaseApi } from '../services/firebaseApi';
+import { useAuth } from '../contexts/AuthContext';
 
 const PromptLearning = () => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const { currentUser } = useAuth();
   const [selectedPrompt, setSelectedPrompt] = useState<any>(null);
   const [userInput, setUserInput] = useState('');
   const [userOutput, setUserOutput] = useState('');
   const [selfRating, setSelfRating] = useState<number>(0);
   const [feedback, setFeedback] = useState({ whatWorked: '', whatDidntWork: '', improvements: '' });
   const [startTime, setStartTime] = useState<number | null>(null);
-
-  // Load sample user data
-  useEffect(() => {
-    firebaseApi.users.getSampleUser().then(setUser);
-  }, []);
 
   // Mock prompts for demonstration
   const mockPrompts = [
@@ -122,11 +118,11 @@ const PromptLearning = () => {
     }
   };
 
-  if (!user) {
+  if (!currentUser) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <p>Loading user data...</p>
+          <p>Please sign in to access the Prompt Learning Lab.</p>
         </div>
       </div>
     );

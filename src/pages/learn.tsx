@@ -5,7 +5,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { BookOpen, Clock, Trophy, Star, CheckCircle, ArrowRight, Lightbulb } from 'lucide-react';
-import { firebaseApi, User as FirebaseUser } from '@/services/firebaseApi';
+import { firebaseApi } from '@/services/firebaseApi';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: string }> = ({ onComplete, userId }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -179,31 +180,25 @@ const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: s
 const LearnPage: React.FC = () => {
   const [showLesson, setShowLesson] = useState(false);
   const [lessonCompleted, setLessonCompleted] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Load sample user data
-  useEffect(() => {
-    firebaseApi.users.getSampleUser().then((userData) => {
-      setUser(userData);
-      setLoading(false);
-    });
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const { currentUser, userData } = useAuth();
 
   const handleStartLesson = () => {
     setShowLesson(true);
   };
 
   const handleLessonComplete = async (score: number) => {
-    if (!user) {
+    if (!currentUser) {
       console.error("No user found");
       return;
     }
 
     try {
+      setLoading(true);
+      
       // Create lesson progress
       await firebaseApi.progress.createProgress({
-        userId: user.id!,
+        userId: currentUser.uid,
         lessonId: "lesson1",
         completed: true,
         score: score,
@@ -212,7 +207,7 @@ const LearnPage: React.FC = () => {
       // Update user XP
       const xpGained = Math.round(score * 2);
       await firebaseApi.users.updateUserProgress({
-        userId: user.id!,
+        userId: currentUser.uid,
         xpGained: xpGained,
         streakUpdate: true,
       });
@@ -221,11 +216,13 @@ const LearnPage: React.FC = () => {
       setShowLesson(false);
     } catch (error) {
       console.error("Error completing lesson:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (showLesson && user) {
-    return <PromptingLesson onComplete={handleLessonComplete} userId={user.id!} />;
+  if (showLesson && currentUser) {
+    return <PromptingLesson onComplete={handleLessonComplete} userId={currentUser.uid} />;
   }
 
   const mockModules = [
@@ -274,40 +271,18 @@ const LearnPage: React.FC = () => {
     }
   };
 
-  // Show loading state while user is being loaded
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your learning environment...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <p className="text-red-600">Error loading user data. Please try again.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Modules</h1>
         <p className="text-gray-600">Master AI skills through interactive lessons and hands-on practice</p>
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Welcome, {user.name}!</strong> You're currently at Level {user.level} with {user.totalScore} XP.
-          </p>
-        </div>
+        {userData && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Welcome, {userData.name}!</strong> You're currently at Level {userData.level} with {userData.totalScore} XP.
+            </p>
+          </div>
+        )}
       </div>
 
       {lessonCompleted && (
@@ -365,9 +340,9 @@ const LearnPage: React.FC = () => {
                   className="w-full" 
                   variant={module.completed ? "outline" : "default"}
                   onClick={module.id === 1 ? handleStartLesson : undefined}
-                  disabled={module.id !== 1}
+                  disabled={module.id !== 1 || loading}
                 >
-                  {module.completed ? "Review" : module.progress > 0 ? "Continue" : "Start Learning"}
+                  {loading ? "Processing..." : module.completed ? "Review" : module.progress > 0 ? "Continue" : "Start Learning"}
                 </Button>
               </div>
             </CardContent>
