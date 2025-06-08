@@ -13,7 +13,7 @@ export default function SignInPage() {
 
   // Redirect if already signed in
   if (currentUser) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/dashboard\" replace />;
   }
 
   const handleGoogleSignIn = async () => {
