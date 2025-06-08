@@ -9,9 +9,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "~convex/*": [
-        "./convex/_generated/*"
       ]
     },
     "moduleResolution": "bundler",

@@ -1,51 +1,83 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-import { Id } from '../../convex/_generated/dataModel';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Progress } from '../components/ui/progress';
 import { Star, Clock, Target, BookOpen, Lightbulb, CheckCircle } from 'lucide-react';
+import { mockApi } from '../data/mockData';
 
 const PromptLearning = () => {
+  const [user, setUser] = useState<any>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<any>(null);
   const [userInput, setUserInput] = useState('');
   const [userOutput, setUserOutput] = useState('');
-  const [currentAttemptId, setCurrentAttemptId] = useState<Id<"prompt_attempts"> | null>(null);
   const [selfRating, setSelfRating] = useState<number>(0);
   const [feedback, setFeedback] = useState({ whatWorked: '', whatDidntWork: '', improvements: '' });
   const [startTime, setStartTime] = useState<number | null>(null);
 
-  // Get sample user for demo
-  const sampleUser = useQuery(api.users.getSampleUser);
-  
-  // Get personalized prompts
-  const personalizedPrompts = useQuery(
-    api.learning.getPersonalizedPrompts,
-    sampleUser ? { userId: sampleUser._id } : "skip"
-  );
+  // Load sample user data
+  useEffect(() => {
+    mockApi.users.getSampleUser().then(setUser);
+  }, []);
 
-  // Get user's learning profile
-  const learningProfile = useQuery(
-    api.learning.getUserLearningProfile,
-    sampleUser ? { userId: sampleUser._id } : "skip"
-  );
+  // Mock prompts for demonstration
+  const mockPrompts = [
+    {
+      _id: "prompt1",
+      title: "Creative Story Starter",
+      category: "creative",
+      difficulty: "beginner" as const,
+      tags: ["storytelling", "creativity", "writing"],
+      prompt: {
+        instruction: "Write a creative story beginning based on the given scenario. Focus on setting the scene and introducing an interesting character.",
+        context: "You'll be given a simple scenario. Your job is to expand it into an engaging story opening that hooks the reader.",
+        examples: [
+          {
+            input: "A person finds a mysterious key in their grandmother's attic",
+            output: "Sarah's fingers trembled as she lifted the ornate brass key from beneath the dusty photo albums. The metal was warm to the touch, almost pulsing with an energy that made her skin tingle.",
+            explanation: "This example shows how to take a simple premise and add sensory details, emotion, and mystery."
+          }
+        ],
+        tips: [
+          "Use sensory details to make the scene vivid",
+          "Create immediate intrigue or questions",
+          "Establish the character's emotional state"
+        ]
+      },
+      learningObjectives: ["Practice creative writing", "Learn story structure", "Develop character voice"],
+      estimatedTime: 15,
+      xpReward: 100,
+    },
+    {
+      _id: "prompt2",
+      title: "Problem-Solution Analysis",
+      category: "analytical",
+      difficulty: "intermediate" as const,
+      tags: ["analysis", "problem-solving", "critical-thinking"],
+      prompt: {
+        instruction: "Analyze a given problem and propose a structured solution. Break down the problem into components and provide a step-by-step approach.",
+        context: "You'll receive a real-world problem scenario. Your task is to demonstrate analytical thinking by identifying root causes and proposing actionable solutions.",
+        examples: [
+          {
+            input: "A small business is losing customers to online competitors",
+            output: "**Problem Analysis:**\n1. Root causes: Limited online presence, higher prices, outdated customer experience\n2. Impact: 30% revenue decline\n\n**Solution Framework:**\n1. Digital transformation\n2. Competitive pricing strategy\n3. Enhanced customer service",
+            explanation: "This shows structured problem-solving with clear analysis and actionable solutions."
+          }
+        ],
+        tips: [
+          "Always identify root causes, not just symptoms",
+          "Propose specific, actionable solutions",
+          "Consider implementation feasibility"
+        ]
+      },
+      learningObjectives: ["Develop analytical thinking", "Learn problem-solving frameworks", "Practice structured communication"],
+      estimatedTime: 25,
+      xpReward: 150,
+    }
+  ];
 
-  // Get user's recent attempts
-  const recentAttempts = useQuery(
-    api.learning.getUserPromptAttempts,
-    sampleUser ? { userId: sampleUser._id, limit: 5 } : "skip"
-  );
-
-  // Mutations
-  const startAttempt = useMutation(api.learning.startPromptAttempt);
-  const completeAttempt = useMutation(api.learning.completePromptAttempt);
-
-  const handleStartPrompt = async (prompt: any) => {
-    if (!sampleUser) return;
-    
+  const handleStartPrompt = (prompt: any) => {
     setSelectedPrompt(prompt);
     setUserInput('');
     setUserOutput('');
@@ -54,29 +86,13 @@ const PromptLearning = () => {
     setFeedback({ whatWorked: '', whatDidntWork: '', improvements: '' });
   };
 
-  const handleBeginAttempt = async () => {
-    if (!sampleUser || !selectedPrompt || !userInput.trim()) return;
-
-    try {
-      const attemptId = await startAttempt({
-        userId: sampleUser._id,
-        promptId: selectedPrompt._id,
-        userInput: userInput.trim(),
-        sessionId: `session_${Date.now()}`,
-      });
-      setCurrentAttemptId(attemptId);
-    } catch (error) {
-      console.error('Failed to start attempt:', error);
-    }
-  };
-
   const handleCompleteAttempt = async () => {
-    if (!currentAttemptId || !userOutput.trim() || !startTime) return;
+    if (!userOutput.trim() || !startTime) return;
 
     try {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-      const result = await completeAttempt({
-        attemptId: currentAttemptId,
+      const result = await mockApi.learning.completePromptAttempt({
+        attemptId: "mock-attempt",
         userOutput: userOutput.trim(),
         timeSpent,
         selfRating: selfRating > 0 ? selfRating : undefined,
@@ -87,7 +103,6 @@ const PromptLearning = () => {
       
       // Reset state
       setSelectedPrompt(null);
-      setCurrentAttemptId(null);
       setUserInput('');
       setUserOutput('');
       setStartTime(null);
@@ -107,7 +122,7 @@ const PromptLearning = () => {
     }
   };
 
-  if (!sampleUser) {
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -124,65 +139,14 @@ const PromptLearning = () => {
         <p className="text-gray-600">Practice and improve your prompting skills with personalized exercises</p>
       </div>
 
-      {/* User Learning Profile */}
-      {learningProfile && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Your Learning Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <h4 className="font-semibold mb-2">Skill Levels</h4>
-                <div className="space-y-2">
-                  {Object.entries(learningProfile.skillLevels).map(([skill, level]) => (
-                    <div key={skill} className="flex items-center justify-between">
-                      <span className="capitalize text-sm">{skill}</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={level * 10} className="w-16 h-2" />
-                        <span className="text-sm text-gray-500">{level}/10</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2">Preferred Topics</h4>
-                <div className="flex flex-wrap gap-1">
-                  {learningProfile.preferredTopics.map((topic) => (
-                    <Badge key={topic} variant="secondary" className="text-xs">
-                      {topic}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2">Current Focus</h4>
-                <Badge className="capitalize">{learningProfile.currentFocus}</Badge>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2">Completed Prompts</h4>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-sm">{learningProfile.completedPrompts.length} completed</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Prompt Selection */}
         <div className="lg:col-span-2">
           {!selectedPrompt ? (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Recommended Prompts</h2>
+              <h2 className="text-2xl font-semibold mb-4">Available Prompts</h2>
               <div className="space-y-4">
-                {personalizedPrompts?.map((prompt) => (
+                {mockPrompts.map((prompt) => (
                   <Card key={prompt._id} className="cursor-pointer hover:shadow-md transition-shadow">
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -203,11 +167,11 @@ const PromptLearning = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-1 mb-3">
-                                                 {prompt.tags.map((tag) => (
-                           <Badge key={tag} variant="secondary" className="text-xs">
-                             {tag}
-                           </Badge>
-                         ))}
+                        {prompt.tags.map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -234,9 +198,9 @@ const PromptLearning = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold">{selectedPrompt.title}</h2>
-                                 <Button variant="ghost" onClick={() => setSelectedPrompt(null)}>
-                   Back to Prompts
-                 </Button>
+                <Button variant="ghost" onClick={() => setSelectedPrompt(null)}>
+                  Back to Prompts
+                </Button>
               </div>
 
               <Card className="mb-6">
@@ -277,11 +241,11 @@ const PromptLearning = () => {
 
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Tips:</h4>
-                                         <ul className="list-disc list-inside space-y-1">
-                       {selectedPrompt.prompt.tips.map((tip: string, index: number) => (
-                         <li key={index} className="text-sm text-gray-700">{tip}</li>
-                       ))}
-                     </ul>
+                    <ul className="list-disc list-inside space-y-1">
+                      {selectedPrompt.prompt.tips.map((tip: string, index: number) => (
+                        <li key={index} className="text-sm text-gray-700">{tip}</li>
+                      ))}
+                    </ul>
                   </div>
                 </CardContent>
               </Card>
@@ -301,120 +265,86 @@ const PromptLearning = () => {
                     onChange={(e) => setUserInput(e.target.value)}
                     className="min-h-[100px] mb-4"
                   />
-                  <Button 
-                    onClick={handleBeginAttempt}
-                    disabled={!userInput.trim() || currentAttemptId !== null}
-                  >
-                    Begin Exercise
-                  </Button>
                 </CardContent>
               </Card>
 
               {/* Output Section */}
-              {currentAttemptId && (
-                <Card className="mb-6">
-                  <CardHeader>
-                    <CardTitle>Your Response</CardTitle>
-                    <CardDescription>
-                      Write your response based on the input above
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      placeholder="Write your response here..."
-                      value={userOutput}
-                      onChange={(e) => setUserOutput(e.target.value)}
-                      className="min-h-[200px] mb-4"
-                    />
-                    
-                    {/* Self-Rating */}
-                    <div className="mb-4">
-                      <h4 className="font-semibold mb-2">Rate your performance:</h4>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((rating) => (
-                          <button
-                            key={rating}
-                            onClick={() => setSelfRating(rating)}
-                            className={`p-1 ${selfRating >= rating ? 'text-yellow-500' : 'text-gray-300'}`}
-                          >
-                            <Star className="h-5 w-5 fill-current" />
-                          </button>
-                        ))}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Your Response</CardTitle>
+                  <CardDescription>
+                    Write your response based on the input above
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="Write your response here..."
+                    value={userOutput}
+                    onChange={(e) => setUserOutput(e.target.value)}
+                    className="min-h-[200px] mb-4"
+                  />
+                  
+                  {/* Self-Rating */}
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Rate your performance:</h4>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <button
+                          key={rating}
+                          onClick={() => setSelfRating(rating)}
+                          className={`p-1 ${selfRating >= rating ? 'text-yellow-500' : 'text-gray-300'}`}
+                        >
+                          <Star className="h-5 w-5 fill-current" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Feedback */}
+                  {selfRating > 0 && (
+                    <div className="space-y-3 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">What worked well?</label>
+                        <Textarea
+                          placeholder="What aspects of your response were effective?"
+                          value={feedback.whatWorked}
+                          onChange={(e) => setFeedback(prev => ({ ...prev, whatWorked: e.target.value }))}
+                          className="min-h-[60px]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">What could be improved?</label>
+                        <Textarea
+                          placeholder="What would you do differently next time?"
+                          value={feedback.improvements}
+                          onChange={(e) => setFeedback(prev => ({ ...prev, improvements: e.target.value }))}
+                          className="min-h-[60px]"
+                        />
                       </div>
                     </div>
+                  )}
 
-                    {/* Feedback */}
-                    {selfRating > 0 && (
-                      <div className="space-y-3 mb-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">What worked well?</label>
-                          <Textarea
-                            placeholder="What aspects of your response were effective?"
-                            value={feedback.whatWorked}
-                            onChange={(e) => setFeedback(prev => ({ ...prev, whatWorked: e.target.value }))}
-                            className="min-h-[60px]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">What could be improved?</label>
-                          <Textarea
-                            placeholder="What would you do differently next time?"
-                            value={feedback.improvements}
-                            onChange={(e) => setFeedback(prev => ({ ...prev, improvements: e.target.value }))}
-                            className="min-h-[60px]"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <Button 
-                      onClick={handleCompleteAttempt}
-                      disabled={!userOutput.trim()}
-                      className="w-full"
-                    >
-                      Complete Exercise
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+                  <Button 
+                    onClick={handleCompleteAttempt}
+                    disabled={!userOutput.trim()}
+                    className="w-full"
+                  >
+                    Complete Exercise
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
 
         {/* Sidebar */}
         <div>
-          {/* Recent Attempts */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Recent Attempts</CardTitle>
             </CardHeader>
             <CardContent>
-              {recentAttempts && recentAttempts.length > 0 ? (
-                <div className="space-y-3">
-                  {recentAttempts.slice(0, 3).map((attempt) => (
-                    <div key={attempt._id} className="border-l-4 border-blue-500 pl-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Exercise Completed</span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(attempt.completedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-sm text-green-600">+{attempt.xpEarned} XP</span>
-                        {attempt.attempt.feedback?.selfRating && (
-                          <div className="flex">
-                            {Array.from({ length: attempt.attempt.feedback.selfRating }).map((_, i) => (
-                              <Star key={i} className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">No attempts yet. Start your first prompt!</p>
-              )}
+              <p className="text-sm text-gray-500">No attempts yet. Start your first prompt!</p>
             </CardContent>
           </Card>
         </div>
@@ -423,4 +353,4 @@ const PromptLearning = () => {
   );
 };
 
-export default PromptLearning; 
+export default PromptLearning;

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '~convex/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { BookOpen, Clock, Trophy, Star, CheckCircle, ArrowRight, Lightbulb } from 'lucide-react';
+import { mockApi } from '@/data/mockData';
 
 const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: string }> = ({ onComplete, userId }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -180,63 +179,49 @@ const PromptingLesson: React.FC<{ onComplete: (score: number) => void; userId: s
 const LearnPage: React.FC = () => {
   const [showLesson, setShowLesson] = useState(false);
   const [lessonCompleted, setLessonCompleted] = useState(false);
+  const [user, setUser] = useState<any>(null);
   
-  // Get sample user and create sample users if they don't exist
-  const sampleUser = useQuery(api.users.getSampleUser);
-  const createSampleUsers = useMutation(api.users.createSampleUsers);
-  const updateProgress = useMutation(api.progress.createProgress);
-  const updateUserProgress = useMutation(api.users.updateUserProgress);
-  
-  const modules = useQuery(api.modules.getAllModules);
-  const lessons = useQuery(api.lessons.getLessonsByModule, 
-    modules && modules[0] ? { moduleId: modules[0]._id } : "skip"
-  );
-
-  // Initialize sample users on component mount
+  // Load sample user data
   React.useEffect(() => {
-    if (!sampleUser) {
-      createSampleUsers();
-    }
-  }, [sampleUser, createSampleUsers]);
+    mockApi.users.getSampleUser().then(setUser);
+  }, []);
 
   const handleStartLesson = () => {
     setShowLesson(true);
   };
 
   const handleLessonComplete = async (score: number) => {
-    if (!sampleUser) {
-      console.error("No sample user found");
+    if (!user) {
+      console.error("No user found");
       return;
     }
 
     try {
-      if (lessons && lessons[0]) {
-        // Update lesson progress
-        await updateProgress({
-          userId: sampleUser._id,
-          lessonId: lessons[0]._id,
-          completed: true,
-          score: score,
-        });
+      // Mock lesson completion
+      await mockApi.progress.createProgress({
+        userId: user._id,
+        lessonId: "lesson1",
+        completed: true,
+        score: score,
+      });
 
-        // Update user XP
-        const xpGained = Math.round(score * 2); // 2 XP per percentage point
-        await updateUserProgress({
-          userId: sampleUser._id,
-          xpGained: xpGained,
-          streakUpdate: true,
-        });
+      // Mock user progress update
+      const xpGained = Math.round(score * 2);
+      await mockApi.users.updateUserProgress({
+        userId: user._id,
+        xpGained: xpGained,
+        streakUpdate: true,
+      });
 
-        setLessonCompleted(true);
-        setShowLesson(false);
-      }
+      setLessonCompleted(true);
+      setShowLesson(false);
     } catch (error) {
       console.error("Error completing lesson:", error);
     }
   };
 
-  if (showLesson && sampleUser) {
-    return <PromptingLesson onComplete={handleLessonComplete} userId={sampleUser._id} />;
+  if (showLesson && user) {
+    return <PromptingLesson onComplete={handleLessonComplete} userId={user._id} />;
   }
 
   const mockModules = [
@@ -285,14 +270,14 @@ const LearnPage: React.FC = () => {
     }
   };
 
-  // Show loading state while sample user is being created
-  if (!sampleUser) {
+  // Show loading state while user is being loaded
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Setting up your learning environment...</p>
+            <p className="text-gray-600">Loading your learning environment...</p>
           </div>
         </div>
       </div>
@@ -306,7 +291,7 @@ const LearnPage: React.FC = () => {
         <p className="text-gray-600">Master AI skills through interactive lessons and hands-on practice</p>
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
-            <strong>Welcome, {sampleUser.name}!</strong> You're currently at Level {sampleUser.level} with {sampleUser.totalScore} XP.
+            <strong>Welcome, {user.name}!</strong> You're currently at Level {user.level} with {user.totalScore} XP.
           </p>
         </div>
       </div>

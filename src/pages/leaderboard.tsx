@@ -1,15 +1,22 @@
-import React from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '~convex/api';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Trophy, Medal, Award } from 'lucide-react';
+import { mockApi, MockUser } from '../data/mockData';
 
 export default function LeaderboardPage() {
-  const users = useQuery(api.users.getLeaderboard);
+  const [users, setUsers] = useState<MockUser[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!users) {
+  useEffect(() => {
+    mockApi.users.getLeaderboard().then((data) => {
+      setUsers(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
@@ -98,11 +105,11 @@ export default function LeaderboardPage() {
                     <div className="text-right">
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                          {user.totalXP || 0} XP
+                          {user.totalScore || 0} XP
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        {user.streak || 0} day streak
+                        {user.currentStreak || 0} day streak
                       </p>
                     </div>
                   </div>
