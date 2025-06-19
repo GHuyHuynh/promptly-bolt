@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
-import { Button } from '../ui/Button';
-import { Menu, X, Brain } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "../ui/Button";
+import { Menu, X, Brain } from "lucide-react";
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigation = [
-    { name: 'Curriculum', href: '#curriculum' },
-    { name: 'Success Stories', href: '#testimonials' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'FAQ', href: '#faq' }
+    { name: "Curriculum", href: "#curriculum" },
+    { name: "Pricing", href: "#pricing" },
   ];
 
   return (
@@ -40,11 +38,9 @@ export const Header: React.FC = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Button variant="outline" size="sm">
-              Sign In
+              Login
             </Button>
-            <Button size="sm">
-              Get Started
-            </Button>
+            <Button size="sm">Sign Up</Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -76,11 +72,9 @@ export const Header: React.FC = () => {
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-neutral-200">
                 <Button variant="outline" size="sm">
-                  Sign In
+                  Login
                 </Button>
-                <Button size="sm">
-                  Get Started
-                </Button>
+                <Button size="sm">Sign Up</Button>
               </div>
             </nav>
           </div>

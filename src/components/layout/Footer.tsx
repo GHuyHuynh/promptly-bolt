@@ -1,32 +1,20 @@
-import React from 'react';
-import { Brain, Twitter, Linkedin, Youtube, Mail } from 'lucide-react';
+import React from "react";
+import { Brain, Twitter, Linkedin, Youtube, Mail } from "lucide-react";
 
 export const Footer: React.FC = () => {
   const footerLinks = {
     Product: [
-      { name: 'Curriculum', href: '#' },
-      { name: 'Pricing', href: '#' },
-      { name: 'Success Stories', href: '#' },
-      { name: 'Free Resources', href: '#' }
+      { name: "Curriculum", href: "#" },
+      { name: "Pricing", href: "#" },
     ],
     Company: [
-      { name: 'About Us', href: '#' },
-      { name: 'Careers', href: '#' },
-      { name: 'Press', href: '#' },
-      { name: 'Contact', href: '#' }
-    ],
-    Support: [
-      { name: 'Help Center', href: '#' },
-      { name: 'Community', href: '#' },
-      { name: 'Status', href: '#' },
-      { name: 'Bug Reports', href: '#' }
+      { name: "About Us", href: "#" },
+      { name: "Contact", href: "#" },
     ],
     Legal: [
-      { name: 'Privacy Policy', href: '#' },
-      { name: 'Terms of Service', href: '#' },
-      { name: 'Cookie Policy', href: '#' },
-      { name: 'GDPR', href: '#' }
-    ]
+      { name: "Privacy Policy", href: "#" },
+      { name: "Terms of Service", href: "#" },
+    ],
   };
 
   return (
@@ -42,19 +30,32 @@ export const Footer: React.FC = () => {
               <span className="text-xl font-bold">Promptly</span>
             </div>
             <p className="text-neutral-400 mb-6 max-w-sm">
-              Master artificial intelligence with our comprehensive, hands-on curriculum designed for the modern learner.
+              Master artificial intelligence with our comprehensive, hands-on
+              curriculum designed for the modern learner.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <Youtube className="w-5 h-5" />
               </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <Mail className="w-5 h-5" />
               </a>
             </div>
@@ -84,11 +85,6 @@ export const Footer: React.FC = () => {
           <p className="text-neutral-400 text-sm">
             © 2025 Promptly. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-sm text-neutral-400">
-            <span>🔒 SOC 2 Compliant</span>
-            <span>🌍 Global Community</span>
-            <span>⚡ 99.9% Uptime</span>
-          </div>
         </div>
       </div>
     </footer>
