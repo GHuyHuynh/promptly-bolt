@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Button } from '../ui/Button';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "../ui/Button";
+import { ArrowRight, CheckCircle } from "lucide-react";
 
 export const CTA: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,7 +22,7 @@ export const CTA: React.FC = () => {
           Ready to Master AI?
         </h2>
         <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-          Join 12,000+ students who are already building their AI careers. Start your journey today with our proven curriculum.
+          Start your journey today to prepare for tomorrow.
         </p>
 
         <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md mx-auto mb-8">
@@ -30,7 +30,7 @@ export const CTA: React.FC = () => {
             <CheckCircle className="w-5 h-5" />
             <span className="font-medium">Limited Time: 50% Off</span>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="email"
@@ -40,7 +40,12 @@ export const CTA: React.FC = () => {
               className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               required
             />
-            <Button type="submit" size="lg" className="w-full" disabled={isSubmitted}>
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={isSubmitted}
+            >
               {isSubmitted ? (
                 <>
                   <CheckCircle className="w-5 h-5 mr-2" />
@@ -54,16 +59,10 @@ export const CTA: React.FC = () => {
               )}
             </Button>
           </form>
-          
-          <p className="text-sm text-neutral-500 mt-4">
-            ✅ Instant access • ✅ 30-day guarantee • ✅ Cancel anytime
-          </p>
-        </div>
 
-        <div className="flex items-center justify-center gap-8 text-primary-100 text-sm">
-          <div>🎓 12,000+ graduates</div>
-          <div>⭐ 4.9/5 rating</div>
-          <div>🏆 #1 AI course</div>
+          <p className="text-sm text-neutral-500 mt-4">
+            Instant access • 30-day guarantee • Cancel anytime
+          </p>
         </div>
       </div>
     </section>
