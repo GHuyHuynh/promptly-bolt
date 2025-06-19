@@ -1,4 +1,5 @@
 import { User as FirebaseUser } from 'firebase/auth';
+import { UserProfile, UserLearningPreferences } from './curriculum';
 
 export interface User {
   uid: string;
@@ -9,6 +10,7 @@ export interface User {
   createdAt: Date;
   lastLoginAt: Date;
   preferences?: UserPreferences;
+  profile?: UserProfile;
 }
 
 export interface UserPreferences {
@@ -17,11 +19,15 @@ export interface UserPreferences {
     email: boolean;
     push: boolean;
     marketing: boolean;
+    dailyReminders: boolean;
+    weeklyProgress: boolean;
   };
   privacy: {
     profileVisible: boolean;
     analyticsEnabled: boolean;
+    showOnLeaderboard: boolean;
   };
+  learning?: UserLearningPreferences;
 }
 
 export interface AuthState {
